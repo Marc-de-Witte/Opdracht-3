@@ -78,3 +78,50 @@ Sub ImporteerCSV()
     ws.UsedRange.Replace What:="AverageCycleTime_Total", Replacement:="Totale Gemiddelde cyclustijd", LookAt:=xlPart
     laatsteKolom = ws.Cells(1, ws.Columns.Count).End(xlToLeft).Column
     LaatsteRij = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+
+    ' Gaat kijken wat de eerste kolom is van Laatst geproduceerd
+    eersteKol = 0
+    For k = 1 To laatsteKolom
+        If InStr(1, ws.Cells(1, k).Value, "LastProduced", vbTextCompare) > 0 Then
+            eersteKol = k
+            Exit For
+        End If
+    Next k
+    
+    If eersteKol > 0 Then
+        ws.Columns(eersteKol).Insert Shift:=xlToRight
+        ws.Cells(1, eersteKol).Value = "Laatst geproduceerd"
+        laatsteKolom = laatsteKolom + 1
+        
+        
+        For r = 2 To LaatsteRij
+            jaar = 2000
+            maand = 1
+            dag = 1
+            uur = 0
+            minuut = 0
+            ' Voegt alle laatst geproduceerde datums bij elkaar
+            For k = eersteKol + 1 To laatsteKolom
+                If InStr(1, ws.Cells(1, k).Value, "LastProduced_YEAR", vbTextCompare) > 0 Then
+                    jaar = CInt(ws.Cells(r, k).Value)
+                ElseIf InStr(1, ws.Cells(1, k).Value, "LastProduced_MONTH", vbTextCompare) > 0 Then
+                    maand = CInt(ws.Cells(r, k).Value)
+                ElseIf InStr(1, ws.Cells(1, k).Value, "LastProduced_DAY", vbTextCompare) > 0 Then
+                    dag = CInt(ws.Cells(r, k).Value)
+                ElseIf InStr(1, ws.Cells(1, k).Value, "LastProduced_HOUR", vbTextCompare) > 0 Then
+                    uur = CInt(ws.Cells(r, k).Value)
+                ElseIf InStr(1, ws.Cells(1, k).Value, "LastProduced_MINUTE", vbTextCompare) > 0 Then
+                    minuut = CInt(ws.Cells(r, k).Value)
+                End If
+            Next k
+            ' Geeft de formaat toe aan het de cellen van laatst geproduceerd
+            ws.Cells(r, eersteKol).Value = DateSerial(jaar, maand, dag) + TimeSerial(uur, minuut, 0)
+            ws.Cells(r, eersteKol).NumberFormat = "dd-mm-yyyy hh:mm"
+        Next r
+        ' verwijder alle andere laatst geproduceerde kolomen
+        For k = laatsteKolom To eersteKol + 1 Step -1
+            If InStr(1, ws.Cells(1, k).Value, "LastProduced", vbTextCompare) > 0 Then
+                ws.Columns(k).Delete
+            End If
+        Next k
+    End If
