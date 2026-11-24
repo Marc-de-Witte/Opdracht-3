@@ -206,3 +206,44 @@ Sub ImporteerCSV()
             End If
         Next r
     End If
+
+    ' Hier pakt het de vorige Worksheet
+    If ws.Index > 1 Then
+        Set vergelijkWs = ThisWorkbook.Worksheets(ws.Index - 1)
+    End If
+    
+    
+    ' Voert alleen uit wat als er een vorige worksheet open is.
+    If Not vergelijkWs Is Nothing Then
+        'Kijkt waar de laatst geproduceerde kolom staat.
+        Set lpKol = ws.Rows(1).Find(What:="Laatst geproduceerd", LookAt:=xlWhole, MatchCase:=False)
+        Set lpKolOud = vergelijkWs.Rows(1).Find(What:="Laatst geproduceerd", LookAt:=xlWhole, MatchCase:=False)
+        ' Als er een laatst geproduceerde kolom is gevonden.
+        If Not lpKol Is Nothing And Not lpKolOud Is Nothing Then
+            
+            lpColIdx = lpKol.Column
+            lpColIdxOud = lpKolOud.Column
+            laatsteKolom = ws.Cells(1, ws.Columns.Count).End(xlToLeft).Column
+            laatsteRijOud = vergelijkWs.Cells(vergelijkWs.Rows.Count, 2).End(xlUp).Row
+            ' Gaat per rij kijken ofdat de datum van laatst geproduceerd al bestaat.
+            For r = 2 To LaatsteRij
+                bestaatAl = False
+                
+                If ws.Cells(r, lpColIdx).Value <> "" Then
+                    For rOud = 2 To laatsteRijOud
+                        If ws.Cells(r, lpColIdx).Value = vergelijkWs.Cells(rOud, lpColIdxOud).Value Then
+                            bestaatAl = True
+                            Exit For
+                        End If
+                    Next rOud
+                End If
+                ' Als het al bestaat dan wordt het geel.
+                If bestaatAl Then
+                    ws.Range(ws.Cells(r, 1), ws.Cells(r, laatsteKolom)).Interior.Color = vbYellow
+                End If
+            Next r
+        End If
+    End If
+    
+    ws.Columns.AutoFit
+End Sub
