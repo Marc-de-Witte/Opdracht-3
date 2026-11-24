@@ -153,3 +153,18 @@ Sub ImporteerCSV()
             Next r
         End If
     Next kopNaam
+
+    Set gevondenKol = ws.Rows(1).Find(What:="Blok type", LookAt:=xlWhole, MatchCase:=False)
+    ' geeft de cellen de juiste blok type toe
+    If Not gevondenKol Is Nothing Then
+        LaatsteRij = ws.Cells(ws.Rows.Count, gevondenKol.Column).End(xlUp).Row
+        
+        For r = 2 To LaatsteRij
+            Set cel = ws.Cells(r, gevondenKol.Column)
+            If cel.Value = 0 Then
+                cel.Value = "Rechthoek"
+            Else
+                cel.Value = "Schuin"
+            End If
+        Next r
+    End If
