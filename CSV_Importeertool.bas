@@ -125,3 +125,31 @@ Sub ImporteerCSV()
             End If
         Next k
     End If
+
+    ' voegt aan elke kolomen onder die kop een eigen unit toe
+    kopNamen = Array("Doek lengte", "Blok hoogte", "Doek lengte Z laag", "Blok breedte", "Totaal geproduceerd", "Aantal afgebroken", "Totaal doek verbruikt", "Gemiddelde cyclustijd doek snijden", "Gemiddelde cyclustijd doek lijmen", "Gemiddelde cyclustijd wikkelen", "Gemiddelde cyclustijd Z laag wikkelen", "Totale Gemiddelde cyclustijd")
+    For Each kopNaam In kopNamen
+        Set gevondenKol = ws.Rows(1).Find(What:=kopNaam, LookAt:=xlWhole, MatchCase:=False)
+        
+        If Not gevondenKol Is Nothing Then
+            LaatsteRij = ws.Cells(ws.Rows.Count, gevondenKol.Column).End(xlUp).Row
+            
+            For r = 2 To LaatsteRij
+                Set cel = ws.Cells(r, gevondenKol.Column)
+                
+                If IsNumeric(cel.Value) And cel.Value <> "" And kopNaam = "Doek lengte" Or IsNumeric(cel.Value) And cel.Value <> "" And kopNaam = "Blok hoogte" Or IsNumeric(cel.Value) And cel.Value <> "" And kopNaam = "Doek lengte Z laag" Or IsNumeric(cel.Value) And cel.Value <> "" And kopNaam = "Blok breedte" Then
+                    cel.Value = CDbl(cel.Value)
+                    cel.NumberFormat = "0"" mm"""
+                ElseIf IsNumeric(cel.Value) And cel.Value <> "" And kopNaam = "Totaal geproduceerd" Or IsNumeric(cel.Value) And cel.Value <> "" And kopNaam = "Aantal afgebroken" Then
+                    cel.Value = CDbl(cel.Value)
+                    cel.NumberFormat = "0"" Stuks"""
+                ElseIf IsNumeric(cel.Value) And cel.Value <> "" And kopNaam = "Totaal doek verbruikt" Then
+                    cel.Value = CDbl(cel.Value)
+                    cel.NumberFormat = "0.00"" m"""
+                ElseIf IsNumeric(cel.Value) And cel.Value <> "" And kopNaam = "Gemiddelde cyclustijd doek snijden" Or IsNumeric(cel.Value) And cel.Value <> "" And kopNaam = "Gemiddelde cyclustijd doek lijmen" Or IsNumeric(cel.Value) And cel.Value <> "" And kopNaam = "Gemiddelde cyclustijd wikkelen" Or IsNumeric(cel.Value) And cel.Value <> "" And kopNaam = "Gemiddelde cyclustijd Z laag wikkelen" Or IsNumeric(cel.Value) And cel.Value <> "" And kopNaam = "Totale Gemiddelde cyclustijd" Then
+                    cel.Value = CDbl(cel.Value)
+                    cel.NumberFormat = "0.0"" sec"""
+                End If
+            Next r
+        End If
+    Next kopNaam
