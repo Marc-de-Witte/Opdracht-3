@@ -168,3 +168,29 @@ Sub ImporteerCSV()
             End If
         Next r
     End If
+
+    Set ptKol = ws.Rows(1).Find(What:="productie tijd (h:m)", LookAt:=xlPart, MatchCase:=False)
+    'verandert de productie tijd naar uren en minuten
+    If Not ptKol Is Nothing Then
+        LaatsteRij = ws.Cells(ws.Rows.Count, ptKol.Column).End(xlUp).Row
+        
+        For r = 2 To LaatsteRij
+            tijdTekst = Trim(ws.Cells(r, ptKol.Column).Value)
+            
+            If InStr(tijdTekst, ":") > 0 Then
+                If InStr(tijdTekst, ".") > 0 Then
+                    tijdTekst = Split(tijdTekst, ".")(0)
+                End If
+                
+                delen = Split(tijdTekst, ":")
+                
+                If UBound(delen) >= 2 Then
+                    dUur = CDbl(delen(0))
+                    dMinuut = CDbl(delen(1))
+                    dSeconde = CDbl(delen(2))
+                    ws.Cells(r, ptKol.Column).Value = (dUur / 24) + (dMinuut / 1440) + (dSeconde / 86400)
+                    ws.Cells(r, ptKol.Column).NumberFormatLocal = "[uu]:mm"
+                End If
+            End If
+        Next r
+    End If
