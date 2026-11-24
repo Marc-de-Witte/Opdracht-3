@@ -194,3 +194,15 @@ Sub ImporteerCSV()
             End If
         Next r
     End If
+
+    Set naamKol = ws.Rows(1).Find(What:="Naam", LookAt:=xlWhole, MatchCase:=False)
+    ' verwijdert alle kolomen zonder naam
+    If Not naamKol Is Nothing Then
+        LaatsteRij = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+        
+        For r = LaatsteRij To 2 Step -1
+            If Trim(ws.Cells(r, naamKol.Column).Value) = "" Then
+                ws.Rows(r).Delete
+            End If
+        Next r
+    End If
